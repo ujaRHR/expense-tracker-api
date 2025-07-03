@@ -1,11 +1,11 @@
 import User from "../../models/User.js";
 import { issueJWT } from "../../utils/jwt.js";
 import { hashPassword } from "../../utils/bcrypt.js";
-import { validateSignupInput } from "../../utils/validators/userValidator.js";
+import validateInput from "../../utils/validators/userValidator.js";
 
 export const userSignup = async (req, res) => {
   const { fullname, email, password } = req.body;
-  const { isValid, errors } = validateSignupInput(fullname, email, password);
+  const { isValid, errors } = validateInput.signup(fullname, email, password);
 
   if (!isValid) {
     return res.status(400).json({
