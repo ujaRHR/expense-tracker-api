@@ -40,12 +40,12 @@ export const userSignup = async (req, res) => {
       message: "User created successfully",
       data: {
         user: {
-          id: user._id,
+          _id: user._id,
           fullname: user.fullname,
           email: user.email,
         },
         token: await issueJWT({
-          id: user._id,
+          _id: user._id,
           fullname: user.fullname,
           email: user.email,
         }),

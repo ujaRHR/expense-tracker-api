@@ -40,12 +40,12 @@ export const userLogin = async (req, res) => {
       message: "User login successful",
       data: {
         user: {
-          id: existingUser._id,
+          _id: existingUser._id,
           fullname: existingUser.fullname,
           email: existingUser.email,
         },
         token: await issueJWT({
-          id: existingUser._id,
+          _id: existingUser._id,
           fullname: existingUser.fullname,
           email: existingUser.email,
         }),
