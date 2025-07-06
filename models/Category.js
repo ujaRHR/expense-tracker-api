@@ -4,24 +4,24 @@ const { Schema, Types } = mongoose;
 
 const categorySchema = new Schema(
   {
-    userId: {
+    user: {
       type: Types.ObjectId,
       ref: "User",
       required: true,
     },
-    name: {
+    title: {
       type: String,
       required: true,
       minLength: 1,
       maxLength: 25,
+      trim: true,
     },
   },
   { timestamps: true }
 );
 
-// Compound unique indexing
-// To avoid duplicate category issue for each user
-categorySchema.index({ userId: 1, name: 1 }, { unique: true });
+// To avoid duplicate category issue
+categorySchema.index({ user: 1, title: 1 }, { unique: true });
 
 const Category = mongoose.model("Category", categorySchema);
 

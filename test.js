@@ -1,8 +1,12 @@
 // Dummy test file, will delete it at the END -_-
 
-const validateEmail = (email) => {
-  const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-  return re.test(email);
-};
+const a = {} || null;
 
-console.log(validateEmail("em_ail@aSd.com"));
+if (10 !== 10) {
+  Object.assign(a, {
+    user: 2347,
+    id: 2389475,
+  });
+}
+
+console.log(a);

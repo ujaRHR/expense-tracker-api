@@ -4,19 +4,20 @@ const { Schema, Types } = mongoose;
 
 const expenseSchema = new Schema(
   {
-    userId: {
+    user: {
       type: Types.ObjectId,
       ref: "User",
       required: true,
     },
     title: {
       type: String,
+      required: true,
       trim: true,
     },
     amount: {
       type: Number,
       required: true,
-      min: 0,
+      default: 0,
     },
     category: {
       type: Types.ObjectId,

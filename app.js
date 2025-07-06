@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import expenseRoutes from "./routes/expenseRoutes.js";
 
 const port = process.env.PORT || 3000;
 const dbBase = process.env.DB_BASE;
@@ -21,6 +22,7 @@ mongoose
 // Assigning route handler
 app.use("/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/expenses", expenseRoutes);
 
 // Basic route for testing
 app.get("/", (req, res) => {

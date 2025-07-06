@@ -2,9 +2,9 @@ import Category from "../../models/Category.js";
 
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find(
-      { userId: req.user._id },
-      { userId: 0, __v: 0 }
+    const categories = await Category.find({ user: req.user._id }).populate(
+      "user",
+      ["_id", "fullname"]
     );
 
     if (categories.length === 0) {
@@ -17,7 +17,7 @@ export const getCategories = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Categories fetched successfully",
-      data: { categories },
+      categories,
     });
   } catch (err) {
     return res.status(500).json({
@@ -29,10 +29,10 @@ export const getCategories = async (req, res) => {
 
 export const categoryInfo = async (req, res) => {
   try {
-    const category = await Category.findOne(
-      { userId: req.user._id, _id: req.params.categoryId },
-      { userId: 0, __v: 0 }
-    );
+    const category = await Category.findOne({
+      user: req.user._id,
+      _id: req.params.categoryId,
+    }).populate("user", ["_id", "fullname"]);
 
     if (!category) {
       return res.status(404).json({
@@ -44,7 +44,7 @@ export const categoryInfo = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Category fetched successfully",
-      data: { category },
+      category,
     });
   } catch (err) {
     return res.status(500).json({
@@ -57,14 +57,14 @@ export const categoryInfo = async (req, res) => {
 
 export const createCategory = async (req, res) => {
   try {
-    const categoryName =
-      typeof req.body.name === "string" && req.body.name.length >= 1
-        ? req.body.name
+    const categoryTitle =
+      typeof req.body.title === "string" && req.body.title.length >= 1
+        ? req.body.title
         : null;
 
     const existingCategory = await Category.findOne({
-      userId: req.user._id,
-      name: categoryName,
+      user: req.user._id,
+      title: categoryTitle,
     });
 
     if (existingCategory) {
@@ -75,8 +75,8 @@ export const createCategory = async (req, res) => {
     }
 
     const category = await Category.create({
-      userId: req.user._id,
-      name: categoryName,
+      user: req.user._id,
+      title: categoryTitle,
     });
 
     if (!category) {
@@ -89,7 +89,7 @@ export const createCategory = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Category created successfully",
-      data: { category },
+      category,
     });
   } catch (err) {
     return res.status(500).json({
@@ -105,7 +105,7 @@ export const deleteCategory = async (req, res) => {
     const categoryId = req.params.categoryId;
 
     const existingCategory = await Category.findOne({
-      userId: req.user._id,
+      user: req.user._id,
       _id: categoryId,
     });
 
@@ -117,7 +117,7 @@ export const deleteCategory = async (req, res) => {
     }
 
     const deleted = await Category.deleteOne({
-      userId: req.user._id,
+      user: req.user._id,
       _id: categoryId,
     });
 
@@ -144,20 +144,20 @@ export const deleteCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
-    const newName =
-      typeof req.body.name === "string" && req.body.name.length >= 1
-        ? req.body.name
+    const newTitle =
+      typeof req.body.title === "string" && req.body.title.length >= 1
+        ? req.body.title
         : null;
 
-    if (!newName) {
+    if (!newTitle) {
       return res.status(400).json({
         success: false,
-        message: "Invalid category name",
+        message: "Invalid category title",
       });
     }
 
     const existingCategory = await Category.findOne({
-      userId: req.user._id,
+      user: req.user._id,
       _id: categoryId,
     });
 
@@ -169,14 +169,14 @@ export const updateCategory = async (req, res) => {
     }
 
     const updated = await Category.updateOne(
-      { userId: req.user._id, _id: categoryId },
-      { name: newName }
+      { user: req.user._id, _id: categoryId },
+      { title: newTitle }
     );
 
     if (updated.modifiedCount === 0) {
       return res.status(400).json({
         success: false,
-        message: "Category name is the same or failed to update",
+        message: "Category title is the same as before or failed to update",
       });
     }
 
