@@ -3,10 +3,19 @@ import Category from "../../models/Category.js";
 
 export const getExpenses = async (req, res) => {
   try {
+    // Offset-based pagination
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const offset = (page - 1) * limit;
+
     const expenses = await Expense.find(
       { user: req.user._id },
       { user: 0, __v: 0 }
-    ).populate("category", ["_id", "title"]);
+    )
+      .populate("category", ["_id", "title"])
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit);
 
     if (expenses.length === 0) {
       return res.status(404).json({
@@ -18,7 +27,11 @@ export const getExpenses = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Expenses fetched successfully",
-      expenses,
+      data: {
+        page: parseInt(page),
+        total: Object.keys(expenses).length,
+        expenses,
+      },
     });
   } catch (err) {
     return res.status(500).json({
@@ -228,6 +241,10 @@ export const updateExpense = async (req, res) => {
 export const filterByRange = async (req, res) => {
   try {
     const { range, from, to } = req.query;
+    // Offset-based pagination
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const offset = (page - 1) * limit;
 
     if (!range && !from) {
       return res.status(400).json({
@@ -275,7 +292,10 @@ export const filterByRange = async (req, res) => {
         $gte: fromDate,
         $lte: toDate,
       },
-    });
+    })
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit);
 
     if (filters.length === 0) {
       return res.status(404).json({
@@ -287,7 +307,11 @@ export const filterByRange = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Fetched expenses for the specified range",
-      expenses: filters,
+      data: {
+        page: parseInt(page),
+        total: Object.keys(filters).length,
+        expenses: filters,
+      },
     });
   } catch (err) {
     return res.status(500).json({
