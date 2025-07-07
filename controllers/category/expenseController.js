@@ -32,10 +32,8 @@ export const expenseInfo = async (req, res) => {
   try {
     const expense = await Expense.findOne(
       { user: req.user._id, _id: req.params.expenseId },
-      { __v: 0 }
-    )
-      .populate("user", ["_id", "fullname"])
-      .populate("category", ["_id", "title"]);
+      { user: 0, __v: 0 }
+    ).populate("category", ["_id", "title"]);
 
     if (!expense) {
       return res.status(404).json({
@@ -65,7 +63,7 @@ export const createExpense = async (req, res) => {
         ? req.body.title
         : null;
 
-    const amount = typeof req.body.amount === "number" ? req.body.amount : 0;
+    const amount = typeof req.body.amount === "number" ? req.body.amount : null;
 
     const categoryId =
       typeof req.body.categoryId === "string" ? req.body.categoryId : null;
@@ -79,12 +77,14 @@ export const createExpense = async (req, res) => {
       });
     }
 
-    const expense = await Expense.create({
+    let expense = await Expense.create({
       user: req.user._id,
       title,
       amount,
       category: categoryId,
     });
+
+    expense = await expense.populate("category", ["_id", "title"]);
 
     if (!expense) {
       return res.status(404).json({
@@ -152,7 +152,10 @@ export const updateExpense = async (req, res) => {
   try {
     const expenseId = req.params.expenseId;
 
-    const existingExpense = await Expense.findOne({ _id: expenseId });
+    const existingExpense = await Expense.findOne({
+      user: req.user._id,
+      _id: expenseId,
+    });
 
     if (!existingExpense) {
       return res.status(404).json({
@@ -212,6 +215,69 @@ export const updateExpense = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Expense updated successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      reason: err.message,
+    });
+  }
+};
+
+export const filterByRange = async (req, res) => {
+  try {
+    const { range, from, to } = req.query;
+
+    if (!range) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid range query, try again",
+      });
+    }
+
+    let toDate = new Date();
+    let fromDate = new Date();
+
+    switch (range) {
+      case "week":
+        fromDate.setDate(toDate.getDate() - 7);
+        break;
+      case "month":
+        fromDate.setMonth(toDate.getMonth() - 1);
+        break;
+      case "3months":
+        fromDate.setMonth(toDate.getMonth() - 3);
+        break;
+      case "6months":
+        fromDate.setMonth(toDate.getMonth() - 6);
+        break;
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Invalid range type",
+        });
+    }
+
+    const filters = await Expense.find({
+      user: req.user._id,
+      createdAt: {
+        $gte: fromDate,
+        $lte: toDate,
+      },
+    });
+
+    if (filters.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No expenses were found in this range",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Fetched expenses for the last ${range}`,
+      expenses: filters,
     });
   } catch (err) {
     return res.status(500).json({

@@ -12,8 +12,7 @@ export const auth = async (req, res, next) => {
   } catch (err) {
     return res.status(401).json({
       success: false,
-      message: "Something went wrong",
-      reason: err.message,
+      message: "Access denied, you're not authorized.",
     });
   }
 };

@@ -2,9 +2,9 @@ import Category from "../../models/Category.js";
 
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find({ user: req.user._id }).populate(
-      "user",
-      ["_id", "fullname"]
+    const categories = await Category.find(
+      { user: req.user._id },
+      { user: 0, __v: 0 }
     );
 
     if (categories.length === 0) {
@@ -29,10 +29,13 @@ export const getCategories = async (req, res) => {
 
 export const categoryInfo = async (req, res) => {
   try {
-    const category = await Category.findOne({
-      user: req.user._id,
-      _id: req.params.categoryId,
-    }).populate("user", ["_id", "fullname"]);
+    const category = await Category.findOne(
+      {
+        user: req.user._id,
+        _id: req.params.categoryId,
+      },
+      { user: 0, __v: 0 }
+    );
 
     if (!category) {
       return res.status(404).json({
