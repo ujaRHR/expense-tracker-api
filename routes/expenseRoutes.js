@@ -7,7 +7,7 @@ import {
   deleteExpense,
   updateExpense,
   filterByRange,
-} from "../controllers/category/expenseController.js";
+} from "../controllers/expenseController.js";
 
 const router = express.Router();
 

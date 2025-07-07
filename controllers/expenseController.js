@@ -1,5 +1,5 @@
-import Expense from "../../models/Expense.js";
-import Category from "../../models/Category.js";
+import Expense from "../models/Expense.js";
+import Category from "../models/Category.js";
 
 export const getExpenses = async (req, res) => {
   try {

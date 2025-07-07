@@ -3,12 +3,14 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
+import { limiter } from "./middlewares/limiterMiddleware.js";
 
 const port = process.env.PORT || 3000;
 const dbBase = process.env.DB_BASE;
 
 const app = express();
 app.use(express.json());
+app.use(limiter);
 
 // Database Setup
 mongoose

@@ -1,7 +1,7 @@
-import User from "../../models/User.js";
-import { issueJWT } from "../../utils/jwt.js";
-import { comparePassword } from "../../utils/bcrypt.js";
-import validateInput from "../../utils/validators/userValidator.js";
+import User from "../models/User.js";
+import { issueJWT } from "../utils/jwt.js";
+import { comparePassword } from "../utils/bcrypt.js";
+import validateInput from "../utils/validators/userValidator.js";
 
 export const userLogin = async (req, res) => {
   const { email, password } = req.body;
