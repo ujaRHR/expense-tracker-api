@@ -229,34 +229,44 @@ export const filterByRange = async (req, res) => {
   try {
     const { range, from, to } = req.query;
 
-    if (!range) {
+    if (!range && !from) {
       return res.status(400).json({
         success: false,
-        message: "Invalid range query, try again",
+        message: "You must provide either a range or a custom date",
       });
     }
 
     let toDate = new Date();
     let fromDate = new Date();
 
-    switch (range) {
-      case "week":
-        fromDate.setDate(toDate.getDate() - 7);
-        break;
-      case "month":
-        fromDate.setMonth(toDate.getMonth() - 1);
-        break;
-      case "3months":
-        fromDate.setMonth(toDate.getMonth() - 3);
-        break;
-      case "6months":
-        fromDate.setMonth(toDate.getMonth() - 6);
-        break;
-      default:
-        return res.status(400).json({
-          success: false,
-          message: "Invalid range type",
-        });
+    if (range) {
+      switch (range) {
+        case "week":
+          fromDate.setDate(toDate.getDate() - 7);
+          break;
+        case "month":
+          fromDate.setMonth(toDate.getMonth() - 1);
+          break;
+        case "3months":
+          fromDate.setMonth(toDate.getMonth() - 3);
+          break;
+        case "6months":
+          fromDate.setMonth(toDate.getMonth() - 6);
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            message: "Invalid range type",
+          });
+      }
+    } else if (from && to) {
+      fromDate = new Date(from);
+      toDate = new Date(to);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "For custom range, both 'from' and 'to' are required",
+      });
     }
 
     const filters = await Expense.find({
@@ -276,7 +286,7 @@ export const filterByRange = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: `Fetched expenses for the last ${range}`,
+      message: "Fetched expenses for the specified range",
       expenses: filters,
     });
   } catch (err) {
